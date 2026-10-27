@@ -1,0 +1,95 @@
+<div class="page">
+  <a mat-button routerLink="/products" class="back">
+    <mat-icon>arrow_back</mat-icon>
+    Back to shop
+  </a>
+
+  @if (product(); as p) {
+    <article class="product panel">
+      <div class="image">
+        <img [src]="p.image" [alt]="p.title" />
+      </div>
+
+      <div class="info">
+        <a class="category" [routerLink]="['/products']" [queryParams]="{ category: p.category }">
+          {{ p.category | titlecase }}
+        </a>
+        <h1>{{ p.title }}</h1>
+        <app-rating [rate]="p.rating.rate" [count]="p.rating.count" />
+        <p class="price">{{ p.price | currency }}</p>
+        <p class="description">{{ p.description }}</p>
+
+        <div class="buy">
+          @if (maxAddable() > 0) {
+            <app-quantity-stepper [(value)]="quantity" [max]="maxAddable()" [label]="p.title" />
+            <button mat-flat-button type="button" class="add" (click)="add(p)">
+              <mat-icon>add_shopping_cart</mat-icon>
+              Add to cart
+            </button>
+          } @else {
+            <p class="muted">You have the maximum quantity of this item in your cart.</p>
+          }
+        </div>
+
+        @if (inCart()) {
+          <p class="in-cart">
+            <mat-icon>check_circle</mat-icon>
+            {{ inCart() }} in your cart.
+            <a routerLink="/cart">View cart</a>
+          </p>
+        }
+
+        <ul class="perks">
+          <li>
+            <mat-icon>local_shipping</mat-icon>
+            Free standard shipping on orders over
+            {{ freeShippingThreshold | currency: 'USD' : 'symbol' : '1.0-0' }}
+          </li>
+          <li><mat-icon>autorenew</mat-icon> 30-day returns</li>
+          <li><mat-icon>lock</mat-icon> Secure checkout</li>
+        </ul>
+      </div>
+    </article>
+
+    @if (related().length) {
+      <section class="related" aria-labelledby="related-heading">
+        <h2 id="related-heading">More in {{ p.category | titlecase }}</h2>
+        <ul>
+          @for (r of related(); track r.id) {
+            <li><app-product-card [product]="r" (addToCart)="addRelated($event)" /></li>
+          }
+        </ul>
+      </section>
+    }
+  } @else {
+    @switch (status()) {
+      @case ('loaded') {
+        <div class="panel state">
+          <mat-icon>inventory_2</mat-icon>
+          <h2>We couldn't find that product</h2>
+          <p class="muted">It may have been removed, or the link is wrong.</p>
+          <a mat-flat-button routerLink="/products">Browse products</a>
+        </div>
+      }
+      @case ('error') {
+        <div class="panel state">
+          <mat-icon>cloud_off</mat-icon>
+          <h2>We couldn't load this product</h2>
+          <p class="muted">{{ error() }}</p>
+          <button mat-flat-button type="button" (click)="retry()">Try again</button>
+        </div>
+      }
+      @default {
+        <div class="product panel loading" aria-busy="true" aria-label="Loading product">
+          <div class="image skeleton-block"></div>
+          <div class="info">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+          </div>
+        </div>
+      }
+    }
+  }
+</div>

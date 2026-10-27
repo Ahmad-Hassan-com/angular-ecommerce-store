@@ -1,0 +1,144 @@
+@use '@angular/material' as mat;
+
+html {
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$violet-palette,
+        tertiary: mat.$orange-palette,
+        theme-type: color-scheme,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+
+  --status-good: #1b7f3b;
+  --star-color: #b26a00;
+}
+
+html.dark-theme {
+  color-scheme: dark;
+  --status-good: #6fcf8b;
+  --star-color: #f0b450;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface);
+}
+
+a:not([mat-button], [mat-flat-button], [mat-stroked-button], [mat-icon-button]) {
+  color: var(--mat-sys-primary);
+}
+
+// ---------- Shared page building blocks ----------
+.page {
+  padding: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  box-sizing: border-box;
+
+  @media (max-width: 599px) {
+    padding: 16px;
+  }
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+
+  h1 {
+    font: var(--mat-sys-headline-small);
+    margin: 0;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.panel {
+  background: var(--mat-sys-surface);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 16px;
+  padding: 20px;
+  box-sizing: border-box;
+
+  h2 {
+    font: var(--mat-sys-title-medium);
+    margin: 0 0 12px;
+  }
+}
+
+// Empty, error and not-found states.
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 24px;
+  text-align: center;
+
+  > .mat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  h1,
+  h2 {
+    margin: 8px 0 0;
+    font: var(--mat-sys-title-large);
+  }
+
+  p {
+    margin: 0 0 12px;
+  }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font: var(--mat-sys-label-large);
+  background: var(--mat-sys-surface-container-high);
+
+  .mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &.good {
+    color: var(--status-good);
+  }
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.full-width {
+  width: 100%;
+}

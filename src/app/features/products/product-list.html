@@ -1,0 +1,166 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>Shop</h1>
+      <p>Clothing, jewellery and electronics, delivered in days.</p>
+    </div>
+    <button
+      class="filters-toggle"
+      mat-stroked-button
+      type="button"
+      aria-controls="filters-panel"
+      (click)="filtersOpen.set(!filtersOpen())"
+      [attr.aria-expanded]="filtersOpen()"
+    >
+      <mat-icon>tune</mat-icon>
+      Filters
+      @if (isFiltered()) {
+        <span class="dot" aria-label="(active)"></span>
+      }
+    </button>
+  </header>
+
+  <div class="layout">
+    <aside
+      id="filters-panel"
+      class="filters panel"
+      [class.open]="filtersOpen()"
+      aria-label="Filters"
+    >
+      <div class="filters-heading">
+        <h2>Filters</h2>
+        @if (isFiltered()) {
+          <button mat-button type="button" (click)="clearFilters()">Clear all</button>
+        }
+      </div>
+
+      <section>
+        <h3 id="category-label">Category</h3>
+        <mat-radio-group
+          aria-labelledby="category-label"
+          [value]="filters().category"
+          (change)="setCategory($event.value)"
+        >
+          <mat-radio-button [value]="null">All categories</mat-radio-button>
+          @for (c of categories(); track c) {
+            <mat-radio-button [value]="c">{{ c | titlecase }}</mat-radio-button>
+          }
+        </mat-radio-group>
+      </section>
+
+      <section>
+        <h3 id="price-label">Price</h3>
+        <p class="price-range" aria-live="polite">
+          {{ filters().minPrice ?? 0 | currency: 'USD' : 'symbol' : '1.0-0' }} –
+          {{ filters().maxPrice ?? priceCeiling() | currency: 'USD' : 'symbol' : '1.0-0' }}
+        </p>
+        <mat-slider
+          class="full-width"
+          [min]="0"
+          [max]="priceCeiling()"
+          [step]="10"
+          [disabled]="status() !== 'loaded'"
+        >
+          <input
+            matSliderStartThumb
+            aria-label="Minimum price"
+            [value]="filters().minPrice ?? 0"
+            (valueChange)="setMinPrice($event)"
+          />
+          <input
+            matSliderEndThumb
+            aria-label="Maximum price"
+            [value]="filters().maxPrice ?? priceCeiling()"
+            (valueChange)="setMaxPrice($event)"
+          />
+        </mat-slider>
+      </section>
+
+      <section>
+        <h3 id="rating-label">Customer rating</h3>
+        <mat-radio-group
+          aria-labelledby="rating-label"
+          [value]="filters().minRating"
+          (change)="setRating($event.value)"
+        >
+          @for (r of ratingOptions; track r.label) {
+            <mat-radio-button [value]="r.value">{{ r.label }}</mat-radio-button>
+          }
+        </mat-radio-group>
+      </section>
+    </aside>
+
+    <section class="results" aria-label="Products">
+      <div class="toolbar">
+        <mat-form-field class="search" appearance="outline" subscriptSizing="dynamic">
+          <mat-icon matPrefix>search</mat-icon>
+          <mat-label>Search products</mat-label>
+          <input matInput type="search" [formControl]="search" autocomplete="off" />
+          @if (search.value) {
+            <button
+              matSuffix
+              mat-icon-button
+              type="button"
+              aria-label="Clear search"
+              (click)="search.setValue('')"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+
+        <mat-form-field class="sort" appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Sort by</mat-label>
+          <mat-select [value]="filters().sort" (selectionChange)="setSort($event.value)">
+            @for (o of sortOptions; track o.value) {
+              <mat-option [value]="o.value">{{ o.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      @switch (status()) {
+        @case ('error') {
+          <div class="panel state">
+            <mat-icon>cloud_off</mat-icon>
+            <h2>We couldn't load the products</h2>
+            <p class="muted">{{ error() }}</p>
+            <button mat-flat-button type="button" (click)="retry()">Try again</button>
+          </div>
+        }
+        @case ('loaded') {
+          <p class="summary muted" aria-live="polite">{{ rangeLabel() }}</p>
+          @if (visible().length) {
+            <ul class="grid">
+              @for (p of visible(); track p.id) {
+                <li><app-product-card [product]="p" (addToCart)="addToCart($event)" /></li>
+              }
+            </ul>
+            <mat-paginator
+              [length]="filtered().length"
+              [pageIndex]="pageIndex()"
+              [pageSize]="pageSize()"
+              [pageSizeOptions]="pageSizes"
+              (page)="onPage($event)"
+              aria-label="Select page of products"
+            />
+          } @else {
+            <div class="panel state">
+              <mat-icon>search_off</mat-icon>
+              <h2>No products match your filters</h2>
+              <p class="muted">Try a different search or remove a filter.</p>
+              <button mat-flat-button type="button" (click)="clearFilters()">Clear filters</button>
+            </div>
+          }
+        }
+        @default {
+          <ul class="grid" aria-busy="true" aria-label="Loading products">
+            @for (s of skeletons; track $index) {
+              <li class="skeleton"></li>
+            }
+          </ul>
+        }
+      }
+    </section>
+  </div>
+</div>

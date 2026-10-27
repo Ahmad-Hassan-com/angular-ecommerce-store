@@ -1,0 +1,76 @@
+<div class="page">
+  @if (order(); as o) {
+    @if (placed()) {
+      <section class="confirmation panel" role="status">
+        <mat-icon>check_circle</mat-icon>
+        <div>
+          <h1>Thank you, {{ o.shipping.fullName.split(' ')[0] }}!</h1>
+          <p>
+            Your order <strong>{{ o.id }}</strong> is confirmed and saved to your order history.
+          </p>
+        </div>
+      </section>
+    } @else {
+      <a mat-button routerLink="/orders" class="back">
+        <mat-icon>arrow_back</mat-icon>
+        All orders
+      </a>
+    }
+
+    <header class="page-header">
+      <div>
+        <h2 class="order-id">Order {{ o.id }}</h2>
+        <p>Placed {{ o.placedAt | date: 'medium' }}</p>
+      </div>
+      <span class="chip good"><mat-icon>check</mat-icon>Confirmed</span>
+    </header>
+
+    <div class="layout">
+      <section class="panel items" aria-labelledby="items-heading">
+        <h2 id="items-heading">Items</h2>
+        <ul>
+          @for (item of o.items; track item.productId) {
+            <li>
+              <span class="thumb"><img [src]="item.image" alt="" /></span>
+              <span class="name">
+                <a [routerLink]="['/products', item.productId]">{{ item.title }}</a>
+                <span class="muted">{{ item.quantity }} × {{ item.price | currency }}</span>
+              </span>
+              <span class="price">{{ item.price * item.quantity | currency }}</span>
+            </li>
+          }
+        </ul>
+        <app-order-summary [totals]="o.totals" [shippingLabel]="delivery()!.label + ' shipping'" />
+      </section>
+
+      <aside class="side">
+        <section class="panel">
+          <h2>Delivery</h2>
+          <p>
+            {{ delivery()!.label }}, estimated {{ delivery()!.from | date: 'EEE d MMM' }} –
+            {{ delivery()!.to | date: 'EEE d MMM' }}
+          </p>
+          <address>
+            {{ o.shipping.fullName }}<br />
+            {{ o.shipping.street }}<br />
+            {{ o.shipping.city }} {{ o.shipping.postalCode }}<br />
+            {{ o.shipping.country }}
+          </address>
+        </section>
+        <section class="panel">
+          <h2>Payment</h2>
+          <p>{{ o.payment.brand }} ending in {{ o.payment.last4 }}</p>
+          <p class="muted">{{ o.payment.cardholder }}</p>
+        </section>
+        <a mat-flat-button routerLink="/products">Continue shopping</a>
+      </aside>
+    </div>
+  } @else {
+    <div class="panel state">
+      <mat-icon>receipt_long</mat-icon>
+      <h2>Order not found</h2>
+      <p class="muted">Orders are saved in this browser, so they won't show up on other devices.</p>
+      <a mat-flat-button routerLink="/orders">View your orders</a>
+    </div>
+  }
+</div>
