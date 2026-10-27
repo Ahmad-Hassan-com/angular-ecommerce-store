@@ -1,6 +1,6 @@
 # Cartwheel: Angular E-Commerce Store
 
-**Live demo: _coming soon_**
+**Live demo: https://cartwheel-store.vercel.app**. Use the test card `4242 4242 4242 4242` at checkout.
 
 A storefront built with **Angular 22**, **NgRx** and **Angular Material (M3)** on top of the free [Fake Store API](https://fakestoreapi.com). Browse and filter products, manage a cart that survives reloads, check out through a validated three-step form, and review past orders.
 
