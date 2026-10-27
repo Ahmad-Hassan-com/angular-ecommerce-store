@@ -1,0 +1,136 @@
+<a mat-button routerLink="/admin/products" class="back">
+  <mat-icon>arrow_back</mat-icon>
+  All products
+</a>
+
+@if (notFound()) {
+  <div class="panel state">
+    <mat-icon>inventory_2</mat-icon>
+    <h2>Product not found</h2>
+    <p class="muted">It may have been deleted.</p>
+    <a mat-flat-button routerLink="/admin/products">Back to products</a>
+  </div>
+} @else {
+  <form class="layout" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <section class="panel fields">
+      <h2>
+        @if (isNew()) {
+          Add a product
+        } @else if (costOnly()) {
+          Set unit cost
+        } @else {
+          Edit product
+        }
+      </h2>
+      @if (costOnly()) {
+        <p class="notice">
+          <mat-icon>info</mat-icon>
+          This product comes from the Fake Store API, so only its cost can be changed here. The cost
+          is used to work out profit.
+        </p>
+      }
+
+      <mat-form-field class="span-2">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" />
+        @if (form.controls.title.hasError('required')) {
+          <mat-error>Enter a title</mat-error>
+        } @else if (form.controls.title.invalid) {
+          <mat-error>Use 3 to 120 characters</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Selling price ($)</mat-label>
+        <input matInput type="number" min="0" step="0.01" formControlName="price" />
+        @if (form.controls.price.invalid) {
+          <mat-error>Enter a price between $0.01 and $100,000</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Unit cost ($)</mat-label>
+        <input matInput type="number" min="0" step="0.01" formControlName="cost" />
+        @if (margin() !== null) {
+          <mat-hint [class.warn]="margin()! < 0">
+            {{ margin()! < 0 ? 'Loss of' : 'Margin' }} {{ margin()! | percent: '1.0-1' }} per sale
+          </mat-hint>
+        }
+        @if (form.controls.cost.invalid) {
+          <mat-error>Enter what one unit costs you ($0 or more)</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field class="span-2">
+        <mat-label>Category</mat-label>
+        <input matInput formControlName="category" [matAutocomplete]="auto" />
+        <mat-autocomplete #auto="matAutocomplete">
+          @for (c of filteredCategories(); track c) {
+            <mat-option [value]="c">{{ c | titlecase }}</mat-option>
+          }
+        </mat-autocomplete>
+        <mat-hint>Pick an existing category or type a new one</mat-hint>
+        @if (form.controls.category.invalid) {
+          <mat-error>Enter a category</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field class="span-2">
+        <mat-label>Description</mat-label>
+        <textarea matInput rows="5" formControlName="description"></textarea>
+        @if (form.controls.description.hasError('required')) {
+          <mat-error>Enter a description</mat-error>
+        } @else if (form.controls.description.invalid) {
+          <mat-error>Keep it under 2,000 characters</mat-error>
+        }
+      </mat-form-field>
+    </section>
+
+    <aside class="panel image-panel">
+      <h2>Image</h2>
+      <div class="preview">
+        @if (imagePreview()) {
+          <img [src]="imagePreview()" alt="Product image preview" />
+        } @else {
+          <mat-icon>image</mat-icon>
+        }
+      </div>
+      @if (!costOnly()) {
+        <button mat-stroked-button type="button" (click)="file.click()">
+          <mat-icon>upload</mat-icon>
+          Upload image
+        </button>
+        <input #file type="file" accept="image/*" hidden (change)="onFile($event)" />
+        @if (uploadError()) {
+          <p class="upload-error" role="alert">{{ uploadError() }}</p>
+        }
+        @if (form.controls.image.value.startsWith('data:')) {
+          <p class="uploaded">
+            <mat-icon>check_circle</mat-icon>
+            Using your uploaded image
+            <button mat-button type="button" (click)="form.controls.image.setValue('')">
+              Remove
+            </button>
+          </p>
+        } @else {
+          <mat-form-field class="full-width">
+            <mat-label>…or paste an image URL</mat-label>
+            <input matInput formControlName="image" placeholder="https://" />
+            @if (form.controls.image.hasError('required')) {
+              <mat-error>Add an image</mat-error>
+            } @else if (form.controls.image.invalid) {
+              <mat-error>Enter a link starting with https://</mat-error>
+            }
+          </mat-form-field>
+        }
+      }
+    </aside>
+
+    <div class="actions">
+      <a mat-button routerLink="/admin/products">Cancel</a>
+      <button mat-flat-button type="submit">
+        {{ isNew() ? 'Add product' : 'Save changes' }}
+      </button>
+    </div>
+  </form>
+}

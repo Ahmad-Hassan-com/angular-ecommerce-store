@@ -12,6 +12,7 @@ import { Rating } from '../../shared/rating';
 import { CartActions } from '../../store/cart.actions';
 import { cartFeature, MAX_QUANTITY } from '../../store/cart.feature';
 import { ProductsActions } from '../../store/products.actions';
+import { selectCatalog, selectCatalogEntities } from '../../store/catalog.selectors';
 import { productsFeature } from '../../store/products.feature';
 import { ProductCard } from './product-card';
 
@@ -38,8 +39,8 @@ export class ProductDetail {
   protected readonly freeShippingThreshold = FREE_SHIPPING_THRESHOLD;
   protected readonly status = this.store.selectSignal(productsFeature.selectStatus);
   protected readonly error = this.store.selectSignal(productsFeature.selectError);
-  private readonly entities = this.store.selectSignal(productsFeature.selectEntities);
-  private readonly all = this.store.selectSignal(productsFeature.selectAllProducts);
+  private readonly entities = this.store.selectSignal(selectCatalogEntities);
+  private readonly all = this.store.selectSignal(selectCatalog);
   private readonly cart = this.store.selectSignal(cartFeature.selectEntities);
 
   protected readonly product = computed(() => this.entities()[Number(this.id())]);

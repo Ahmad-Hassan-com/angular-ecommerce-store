@@ -16,6 +16,7 @@ import { debounceTime, filter, map } from 'rxjs';
 import { Product } from '../../core/models';
 import { CartActions } from '../../store/cart.actions';
 import { ProductsActions } from '../../store/products.actions';
+import { selectCatalog, selectCategories, selectPriceCeiling } from '../../store/catalog.selectors';
 import { productsFeature } from '../../store/products.feature';
 import { ProductCard } from './product-card';
 import {
@@ -75,9 +76,9 @@ export class ProductList {
 
   protected readonly status = this.store.selectSignal(productsFeature.selectStatus);
   protected readonly error = this.store.selectSignal(productsFeature.selectError);
-  private readonly products = this.store.selectSignal(productsFeature.selectAllProducts);
-  protected readonly categories = this.store.selectSignal(productsFeature.selectCategories);
-  protected readonly priceCeiling = this.store.selectSignal(productsFeature.selectPriceCeiling);
+  private readonly products = this.store.selectSignal(selectCatalog);
+  protected readonly categories = this.store.selectSignal(selectCategories);
+  protected readonly priceCeiling = this.store.selectSignal(selectPriceCeiling);
 
   protected readonly filters = computed(() =>
     parseFilters({

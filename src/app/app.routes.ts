@@ -42,6 +42,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/orders/order-detail').then((m) => m.OrderDetail),
   },
   {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.routes').then((m) => m.adminRoutes),
+  },
+  {
     path: '**',
     title: 'Page not found | Cartwheel',
     loadComponent: () => import('./features/errors/not-found').then((m) => m.NotFound),

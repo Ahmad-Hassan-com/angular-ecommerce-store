@@ -1,0 +1,116 @@
+.layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.add form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  button {
+    height: 48px;
+  }
+}
+
+.list {
+  display: grid;
+  gap: 16px;
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .total {
+    font: var(--mat-sys-title-medium);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.breakdown {
+  list-style: none;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+
+  li {
+    display: grid;
+    grid-template-columns: 90px minmax(0, 1fr) 80px;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .bar {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--mat-sys-surface-container-high);
+    overflow: hidden;
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: 4px;
+      background: var(--chart-series-2);
+    }
+  }
+
+  .amount {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.table-panel {
+  padding: 0;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    white-space: nowrap;
+  }
+
+  thead th {
+    font: var(--mat-sys-label-large);
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .note {
+    white-space: normal;
+    min-width: 140px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .actions {
+    text-align: right;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 32px;
+  }
+}
+
+@media (max-width: 899px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

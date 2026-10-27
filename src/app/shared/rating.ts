@@ -5,16 +5,20 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-rating',
   imports: [MatIconModule],
   template: `
-    <span class="stars" aria-hidden="true">
-      @for (star of stars(); track $index) {
-        <mat-icon>{{ star }}</mat-icon>
+    @if (count() === 0) {
+      <span>No reviews yet</span>
+    } @else {
+      <span class="stars" aria-hidden="true">
+        @for (star of stars(); track $index) {
+          <mat-icon>{{ star }}</mat-icon>
+        }
+      </span>
+      <span class="value">{{ rate().toFixed(1) }}</span>
+      @if (count() !== null) {
+        <span class="count">({{ count() }})</span>
       }
-    </span>
-    <span class="value">{{ rate().toFixed(1) }}</span>
-    @if (count() !== null) {
-      <span class="count">({{ count() }})</span>
+      <span class="cdk-visually-hidden">{{ label() }}</span>
     }
-    <span class="cdk-visually-hidden">{{ label() }}</span>
   `,
   styles: `
     :host {

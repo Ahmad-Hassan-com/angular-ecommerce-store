@@ -1,0 +1,138 @@
+<div class="controls">
+  <mat-button-toggle-group
+    [value]="view()"
+    (change)="setView($event.value)"
+    aria-label="Report period"
+    hideSingleSelectionIndicator
+  >
+    <mat-button-toggle value="daily">Daily</mat-button-toggle>
+    <mat-button-toggle value="monthly">Monthly</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  <app-period-nav
+    [label]="periodLabel()"
+    [unit]="view() === 'daily' ? 'month' : 'year'"
+    [canGoNext]="canGoNext()"
+    (previous)="step(-1)"
+    (next)="step(1)"
+  />
+
+  <span class="spacer"></span>
+
+  <mat-slide-toggle [checked]="includeDemoData()" (change)="setDemoData($event.checked)">
+    Include demo data
+  </mat-slide-toggle>
+</div>
+
+@if (includeDemoData()) {
+  <p class="demo-note muted">
+    <mat-icon>info</mat-icon>
+    Showing a year of generated sample sales and expenses alongside your real orders and expenses.
+    Turn off "Include demo data" to see only real activity.
+  </p>
+}
+
+@if (todayStats(); as t) {
+  <section class="today panel" aria-label="Today">
+    <span class="today-label">Today</span>
+    <span
+      ><strong>{{ t.revenue | currency }}</strong> revenue</span
+    >
+    <span
+      ><strong>{{ t.orders }}</strong> {{ t.orders === 1 ? 'order' : 'orders' }}</span
+    >
+    <span
+      ><strong>{{ t.expenses | currency }}</strong> expenses</span
+    >
+    <span
+      ><strong>{{ t.netProfit | currency }}</strong> net profit</span
+    >
+  </section>
+}
+
+<ul class="kpis">
+  @for (k of kpis(); track k.label) {
+    <li class="panel">
+      <span class="kpi-label">{{ k.label }}</span>
+      <span class="kpi-value">
+        @if (k.format === 'currency') {
+          {{ k.value | currency: 'USD' : 'symbol' : '1.0-0' }}
+        } @else {
+          {{ k.value | number }}
+        }
+      </span>
+      @if (change(k) !== null) {
+        @let c = change(k)!;
+        <span class="delta" [class.good]="isGood(k)" [class.bad]="!isGood(k)">
+          <mat-icon aria-hidden="true">{{ c >= 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          {{ c >= 0 ? '+' : '' }}{{ c | percent: '1.0-1' }}
+          <span class="muted">vs {{ previousLabel() }}</span>
+        </span>
+      } @else {
+        <span class="delta muted">No earlier data to compare</span>
+      }
+      @if (k.note) {
+        <span class="kpi-note muted">{{ k.note }}</span>
+      }
+    </li>
+  }
+</ul>
+
+<section class="panel chart-panel" aria-labelledby="chart-heading">
+  <h2 id="chart-heading">
+    {{ view() === 'daily' ? 'Daily' : 'Monthly' }} sales, costs and profit · {{ periodLabel() }}
+  </h2>
+  @if (total().orders || total().expenses) {
+    <app-chart [build]="buildChart()" [label]="chartLabel()" [height]="300" />
+  } @else {
+    <p class="muted empty">
+      Nothing recorded for this period yet. Place an order in the shop, add an expense, or turn on
+      demo data.
+    </p>
+  }
+</section>
+
+<section class="panel" aria-labelledby="table-heading">
+  <h2 id="table-heading">{{ view() === 'daily' ? 'By day' : 'By month' }}</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">{{ view() === 'daily' ? 'Date' : 'Month' }}</th>
+          <th scope="col">Orders</th>
+          <th scope="col">Revenue</th>
+          <th scope="col">Cost of goods</th>
+          <th scope="col">Expenses</th>
+          <th scope="col">Gross profit</th>
+          <th scope="col">Net profit</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of newestFirst(); track row.key) {
+          <tr>
+            <th scope="row">
+              {{ row.start | date: (view() === 'daily' ? 'EEE d MMM' : 'MMMM yyyy') }}
+            </th>
+            <td>{{ row.orders | number }}</td>
+            <td>{{ row.revenue | currency }}</td>
+            <td>{{ row.cogs | currency }}</td>
+            <td>{{ row.expenses | currency }}</td>
+            <td>{{ row.grossProfit | currency }}</td>
+            <td [class.negative]="row.netProfit < 0">{{ row.netProfit | currency }}</td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row">Total</th>
+          <td>{{ total().orders | number }}</td>
+          <td>{{ total().revenue | currency }}</td>
+          <td>{{ total().cogs | currency }}</td>
+          <td>{{ total().expenses | currency }}</td>
+          <td>{{ total().grossProfit | currency }}</td>
+          <td [class.negative]="total().netProfit < 0">{{ total().netProfit | currency }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</section>

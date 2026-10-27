@@ -33,6 +33,9 @@ import { cartFeature } from '../store/cart.feature';
         <a mat-button routerLink="/orders" routerLinkActive="active" ariaCurrentWhenActive="page">
           Orders
         </a>
+        <a mat-button routerLink="/admin" routerLinkActive="active" ariaCurrentWhenActive="page">
+          Admin
+        </a>
       </nav>
       <span class="spacer"></span>
       <button
@@ -87,9 +90,13 @@ import { cartFeature } from '../store/cart.feature';
       background: var(--mat-sys-secondary-container);
       color: var(--mat-sys-on-secondary-container);
     }
-    @media (max-width: 420px) {
+    @media (max-width: 480px) {
       .brand-name {
         display: none;
+      }
+      nav a {
+        padding: 0 10px;
+        min-width: 0;
       }
     }
   `,

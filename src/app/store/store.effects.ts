@@ -8,6 +8,7 @@ import { Order } from '../core/models';
 import { calculateTotals } from '../core/pricing';
 import { errorMessage, StoreApi } from '../core/store-api';
 import { CartActions } from './cart.actions';
+import { defaultCost, selectUnitCosts } from './catalog.selectors';
 import { cartFeature } from './cart.feature';
 import { OrdersActions } from './orders.actions';
 
@@ -15,9 +16,13 @@ export const placeOrder = createEffect(
   (actions$ = inject(Actions), store = inject(Store), api = inject(StoreApi)) =>
     actions$.pipe(
       ofType(OrdersActions.placeOrder),
-      withLatestFrom(store.select(cartFeature.selectItems)),
-      exhaustMap(([{ details }, items]) =>
-        api.createCart(items).pipe(
+      withLatestFrom(store.select(cartFeature.selectItems), store.select(selectUnitCosts)),
+      exhaustMap(([{ details }, cartItems, costs]) => {
+        const items = cartItems.map((item) => ({
+          ...item,
+          unitCost: costs[item.productId] ?? defaultCost(item.price),
+        }));
+        return api.createCart(items).pipe(
           map((response) => {
             const order: Order = {
               ...details,
@@ -32,8 +37,8 @@ export const placeOrder = createEffect(
           catchError((error) =>
             of(OrdersActions.placeOrderFailure({ error: errorMessage(error) })),
           ),
-        ),
-      ),
+        );
+      }),
     ),
   { functional: true },
 );

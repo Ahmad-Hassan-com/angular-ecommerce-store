@@ -49,13 +49,47 @@ export interface CheckoutDetails {
   payment: PaymentSummary;
 }
 
+/** An order line remembers what the item cost the store when it was sold, for profit reports. */
+export interface OrderLine extends CartItem {
+  unitCost?: number;
+}
+
 export interface Order extends CheckoutDetails {
   id: string;
   /** Id returned by the Fake Store API's POST /carts. */
   apiCartId: number | null;
   placedAt: string;
-  items: CartItem[];
+  items: OrderLine[];
   totals: OrderTotals;
 }
 
 export type LoadStatus = 'idle' | 'loading' | 'loaded' | 'error';
+
+/** A product created in the admin area. `cost` is what the store pays per unit. */
+export interface AdminProduct extends Product {
+  cost: number;
+  createdAt: string;
+}
+
+export const EXPENSE_CATEGORIES = [
+  'Rent',
+  'Salaries',
+  'Marketing',
+  'Shipping',
+  'Software',
+  'Utilities',
+  'Other',
+] as const;
+
+export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
+
+export interface Expense {
+  id: string;
+  /** Local calendar date, YYYY-MM-DD. */
+  date: string;
+  category: ExpenseCategory;
+  amount: number;
+  note: string;
+  /** Generated sample data, not entered by the admin. */
+  demo?: boolean;
+}

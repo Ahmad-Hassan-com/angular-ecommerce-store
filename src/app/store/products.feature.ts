@@ -1,5 +1,5 @@
 import { createEntityAdapter, EntityState } from '@ngrx/entity';
-import { createFeature, createReducer, createSelector, on } from '@ngrx/store';
+import { createFeature, createReducer, on } from '@ngrx/store';
 import { LoadStatus, Product } from '../core/models';
 import { ProductsActions } from './products.actions';
 
@@ -28,17 +28,7 @@ export const productsFeature = createFeature({
       error,
     })),
   ),
-  extraSelectors: ({ selectProductsState }) => {
-    const { selectAll } = adapter.getSelectors(selectProductsState);
-    return {
-      selectAllProducts: selectAll,
-      selectCategories: createSelector(selectAll, (products) =>
-        [...new Set(products.map((p) => p.category))].sort(),
-      ),
-      /** Highest price rounded up to the next $10, used as the price slider's upper bound. */
-      selectPriceCeiling: createSelector(selectAll, (products) =>
-        Math.max(10, Math.ceil(Math.max(0, ...products.map((p) => p.price)) / 10) * 10),
-      ),
-    };
-  },
+  extraSelectors: ({ selectProductsState }) => ({
+    selectAllProducts: adapter.getSelectors(selectProductsState).selectAll,
+  }),
 });

@@ -1,0 +1,120 @@
+<div class="layout">
+  <section class="panel add" aria-labelledby="add-heading">
+    <h2 id="add-heading">Add an expense</h2>
+    <form [formGroup]="form" #formDirective="ngForm" (ngSubmit)="add(formDirective)" novalidate>
+      <mat-form-field>
+        <mat-label>Date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="date" [max]="today" />
+        <mat-datepicker-toggle matIconSuffix [for]="picker" />
+        <mat-datepicker #picker />
+        @if (form.controls.date.invalid || form.controls.date.value === null) {
+          <mat-error>Choose a date (not in the future)</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category">
+          @for (c of categories; track c) {
+            <mat-option [value]="c">{{ c }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.category.invalid) {
+          <mat-error>Choose a category</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Amount ($)</mat-label>
+        <input matInput type="number" min="0" step="0.01" formControlName="amount" />
+        @if (form.controls.amount.invalid) {
+          <mat-error>Enter an amount above $0</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Note (optional)</mat-label>
+        <input matInput formControlName="note" maxlength="120" />
+      </mat-form-field>
+      <button mat-flat-button type="submit">
+        <mat-icon>add</mat-icon>
+        Add expense
+      </button>
+    </form>
+  </section>
+
+  <section class="list" aria-labelledby="list-heading">
+    <div class="list-header">
+      <h2 id="list-heading" class="cdk-visually-hidden">Expenses for {{ monthLabel() }}</h2>
+      <app-period-nav
+        [label]="monthLabel()"
+        unit="month"
+        [canGoNext]="canGoNext()"
+        (previous)="step(-1)"
+        (next)="step(1)"
+      />
+      <span class="total">
+        Total <strong>{{ total() | currency }}</strong>
+      </span>
+    </div>
+
+    @if (byCategory().length) {
+      <ul class="breakdown panel" aria-label="Spending by category">
+        @for (c of byCategory(); track c.category) {
+          <li>
+            <span class="name">{{ c.category }}</span>
+            <span class="bar" aria-hidden="true"
+              ><span [style.width.%]="c.share * 100"></span
+            ></span>
+            <span class="amount">{{ c.amount | currency: 'USD' : 'symbol' : '1.0-0' }}</span>
+          </li>
+        }
+      </ul>
+    }
+
+    <div class="panel table-panel">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Category</th>
+            <th scope="col">Note</th>
+            <th scope="col" class="num">Amount</th>
+            <th scope="col"><span class="cdk-visually-hidden">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of expenses(); track e.id) {
+            <tr>
+              <td>{{ dateOf(e) | date: 'EEE d MMM' }}</td>
+              <td>{{ e.category }}</td>
+              <td class="note">{{ e.note || '—' }}</td>
+              <td class="num">{{ e.amount | currency }}</td>
+              <td class="actions">
+                @if (e.demo) {
+                  <span
+                    class="chip"
+                    matTooltip="Generated sample data. Turn off demo data on the dashboard to hide it."
+                  >
+                    Demo
+                  </span>
+                } @else {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    matTooltip="Delete"
+                    [attr.aria-label]="'Delete ' + e.category + ' expense of ' + e.amount"
+                    (click)="remove(e)"
+                  >
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="empty muted">No expenses recorded for {{ monthLabel() }}.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -2,6 +2,7 @@ import { isDevMode } from '@angular/core';
 import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { adminFeature, AdminState } from './admin.feature';
 import { cartFeature, CartState } from './cart.feature';
 import { ordersFeature, OrdersState } from './orders.feature';
 import { persistState } from './persist.meta-reducer';
@@ -13,6 +14,7 @@ export interface AppState {
   products: ProductsState;
   cart: CartState;
   orders: OrdersState;
+  admin: AdminState;
 }
 
 export function provideAppStore() {
@@ -22,6 +24,7 @@ export function provideAppStore() {
         products: productsFeature.reducer,
         cart: cartFeature.reducer,
         orders: ordersFeature.reducer,
+        admin: adminFeature.reducer,
       },
       { metaReducers: [persistState] },
     ),
